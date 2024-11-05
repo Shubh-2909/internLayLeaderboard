@@ -59,6 +59,11 @@ function App() {
     }
   }
 
+  function openurl(teamName) {
+    const url = `https://github.com/InternLay-HG/${teamName}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   useEffect(() => {
     async function fetchCommitsData() {
       setIsLoading(true);
@@ -105,7 +110,10 @@ function App() {
             {teamCommits.map(({ teamName, totalCommits }, index) => (
               <tr
                 key={teamName}
-                className="block sm:table-row bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="block sm:table-row bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:cursor-pointer"
+                onClick={() => {
+                  openurl(teamName);
+                }}
               >
                 <td className="block sm:table-cell px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {index + 1}
