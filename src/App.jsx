@@ -2,24 +2,23 @@ import React, { useState, useEffect } from "react";
 
 function App() {
   const teams = [
-    "TEAM_IOSTREAM",
-    "NoobDevelopers",
-    "Binary_Coders",
-    "100B",
-    "Data_Doctors",
-    "SMHackers",
-    "3O1",
-    "MedAid_Innovators",
-    "Code_smaShers",
-    "Mega_Bytes",
-    "Apex",
-    "Team_Titans",
-    "Code_Crushers",
-    "HYDRA",
-    "Sin-Tax",
-    "Team_RKR",
-    "Problems_Makers",
-    "Skill_Issue",
+    { name: "TEAM_IOSTREAM", score: 80 },
+    { name: "NoobDevelopers", score: 60 },
+    { name: "Binary_Coders", score: 92 },
+    { name: "100B", score: 80 },
+    { name: "Data_Doctors", score: 85 },
+    { name: "SMHackers", score: 82 },
+    { name: "3O1", score: 75 },
+    { name: "MedAid_Innovators", score: 90 },
+    { name: "Code_smaShers", score: 40 },
+    { name: "Mega_Bytes", score: 75 },
+    { name: "Apex", score: 60 },
+    { name: "Team_Titans", score: 75 },
+    { name: "Code_Crushers", score: 70 },
+    { name: "HYDRA", score: 30 },
+    { name: "Sin-Tax", score: 50 },
+    { name: "Team_RKR", score: 0 },
+    { name: "Skill_Issue", score: 0 },
   ];
 
   const [teamCommits, setTeamCommits] = useState([]);
@@ -60,16 +59,19 @@ function App() {
     }
   }
 
-  // Fetch commit data for all teams
   useEffect(() => {
     async function fetchCommitsData() {
       setIsLoading(true);
       const results = await Promise.all(
-        teams.map((team) => getTotalCommits(team))
+        teams.map(async (team) => {
+          const { teamName, totalCommits } = await getTotalCommits(team.name);
+          const score = team.score;
+          const rankValue = 0.7 * score + 0.3 * totalCommits;
+          return { teamName, totalCommits, score, rankValue };
+        })
       );
-      const sortedTeams = results.sort(
-        (a, b) => b.totalCommits - a.totalCommits
-      );
+
+      const sortedTeams = results.sort((a, b) => b.rankValue - a.rankValue);
       setTeamCommits(sortedTeams);
       setIsLoading(false);
     }
@@ -78,38 +80,58 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full gap-[50px] p-[50px] no-scrollbar overflow-auto">
-      <h1 className="font-mono">InternLay Leaderboard</h1>
+    <div className="flex flex-col items-center justify-center h-full w-full gap-[50px] px-[10px] py-[50px] sm:p-[50px] no-scrollbar overflow-auto">
+      <h1 className="font-mono flex items-center justify-center mx-auto">
+        InternLay Leaderboard
+      </h1>
 
-      <div class="relative overflow-auto shadow-md sm:rounded-lg">
-        <table class="min-w-[400px] w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      {/* Responsive table container */}
+      <div className="relative w-full shadow-md sm:rounded-lg">
+        <table className="w-full table-fixed text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="hidden sm:table-header-group text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Ranking
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Team name
               </th>
-
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Commits
               </th>
             </tr>
           </thead>
           <tbody>
             {teamCommits.map(({ teamName, totalCommits }, index) => (
-              <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <td class="px-6 py-4 ">{index + 1}</td>
-                <th
-                  scope="row"
-                  class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
+              <tr
+                key={teamName}
+                className="block sm:table-row bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              >
+                <td className="block sm:table-cell px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {index + 1}
+                </td>
+                <td className="block sm:table-cell px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {teamName}
-                </th>
-                <td class="px-6 py-4  font-mono">{totalCommits} commits</td>
+                </td>
+                <td className="block sm:table-cell px-6 py-4 font-mono">
+                  {totalCommits} commits
+                </td>
               </tr>
             ))}
+            {!isLoading && (
+              <tr className="block sm:table-row bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <td className="block sm:table-cell px-6 py-4">18</td>
+                <td
+                  scope="row"
+                  className="block sm:table-cell px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                >
+                  Problems_Makers
+                </td>
+                <td className="block sm:table-cell px-6 py-4 font-mono text-red-600">
+                  Disqualified
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -122,7 +144,7 @@ function App() {
         <div role="status">
           <svg
             aria-hidden="true"
-            class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+            className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +158,7 @@ function App() {
               fill="currentFill"
             />
           </svg>
-          <span class="sr-only">Loading...</span>
+          <span className="sr-only">Loading...</span>
         </div>
       )}
     </div>
