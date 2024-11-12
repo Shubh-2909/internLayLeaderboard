@@ -71,7 +71,7 @@ function App() {
         teams.map(async (team) => {
           const { teamName, totalCommits } = await getTotalCommits(team.name);
           const score = team.score;
-          const rankValue = 0.6 * score + 0.4 * totalCommits;
+          const rankValue = 0.7 * score + 0.3 * totalCommits;
           return { teamName, totalCommits, score, rankValue };
         })
       );
